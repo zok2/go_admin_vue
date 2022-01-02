@@ -6,6 +6,6 @@ import (
 )
 
 type SysUsersSearch struct{
-		system.s
-		request.
+		system.SysUser
+		request.PageInfo
 }

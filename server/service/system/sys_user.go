@@ -3,6 +3,7 @@ package system
 import (
 	"errors"
 	"fmt"
+	request2 "github.com/flipped-aurora/gin-vue-admin/server/request"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
@@ -19,7 +20,10 @@ import (
 //@return: err error, userInter model.SysUser
 
 type UserService struct{}
-
+type SysUsersSearch struct{
+	system.SysUser
+	request.PageInfo
+}
 func (userService *UserService) Register(u system.SysUser) (err error, userInter system.SysUser) {
 	var user system.SysUser
 	if !errors.Is(global.GVA_DB.Where("username = ?", u.Username).First(&user).Error, gorm.ErrRecordNotFound) { // 判断用户名是否注册
@@ -68,12 +72,24 @@ func (userService *UserService) ChangePassword(u *system.SysUser, newPassword st
 //@param: info request.PageInfo
 //@return: err error, list interface{}, total int64
 
-func (userService *UserService) GetUserInfoList(info request.PageInfo) (err error, list interface{}, total int64) {
+func (userService *UserService) GetUserInfoList(info request2.SysUsersSearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	db := global.GVA_DB.Model(&system.SysUser{})
 	var userList []system.SysUser
 	err = db.Count(&total).Error
+	if info.NickName != "" {
+		db = db.Where("nick_name LIKE ?","%"+ info.NickName+"%")
+	}
+	if info.Sn != "" {
+		db = db.Where("sn = ?",info.Sn)
+	}
+	if info.Email != "" {
+		db = db.Where("email = ?",info.Email)
+	}
+	if info.Telephone != "" {
+		db = db.Where("telephone = ?",info.Telephone)
+	}
 	if err != nil {
 		return
 	}

@@ -1,6 +1,7 @@
 package system
 
 import (
+	request2 "github.com/flipped-aurora/gin-vue-admin/server/request"
 	"strconv"
 
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
@@ -16,7 +17,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// @Tags Base
+// Login @Tags Base
 // @Summary 用户登录
 // @Produce  application/json
 // @Param data body systemReq.Login true "用户名, 密码, 验证码"
@@ -161,7 +162,7 @@ func (b *BaseApi) ChangePassword(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"获取成功"}"
 // @Router /user/getUserList [post]
 func (b *BaseApi) GetUserList(c *gin.Context) {
-	var pageInfo request.PageInfo
+	var pageInfo request2.SysUsersSearch
 	_ = c.ShouldBindJSON(&pageInfo)
 	if err := utils.Verify(pageInfo, utils.PageInfoVerify); err != nil {
 		response.FailWithMessage(err.Error(), c)

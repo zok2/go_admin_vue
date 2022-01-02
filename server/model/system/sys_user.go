@@ -18,4 +18,9 @@ type SysUser struct {
 	AuthorityId string         `json:"authorityId" gorm:"default:888;comment:用户角色ID"`                                        // 用户角色ID
 	Authority   SysAuthority   `json:"authority" gorm:"foreignKey:AuthorityId;references:AuthorityId;comment:用户角色"`
 	Authorities []SysAuthority `json:"authorities" gorm:"many2many:sys_user_authority;"`
+	Address  string `json:"address" form:"address" gorm:"column:address;comment:;size:200;"`
+	Sex  *int `json:"sex" form:"sex" gorm:"column:sex;comment:;"`
+	Sn  string `json:"sn" form:"sn" gorm:"column:sn;comment:;size:20;"`
+	Email  string `json:"email" form:"email" gorm:"column:email;comment:;size:50;"`
+	Telephone  string `json:"telephone" form:"telephone" gorm:"column:telephone;comment:;size:20;"`
 }
