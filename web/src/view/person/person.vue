@@ -36,26 +36,20 @@
                   </el-icon>
                   {{ userInfo.nickName }}
                 </li>
-                <el-tooltip class="item" effect="light" content="北京反转极光科技有限公司-技术部-前端事业群" placement="top">
-                  <li>
-                    <el-icon>
-                      <data-analysis />
-                    </el-icon>
-                    北京反转极光科技有限公司-技术部-前端事业群
-                  </li>
-                </el-tooltip>
-                <li>
-                  <el-icon>
-                    <video-camera />
-                  </el-icon>
-                  中国·北京市·朝阳区
-                </li>
-                <el-tooltip class="item" effect="light" content="GoLang/JavaScript/Vue/Gorm" placement="top">
+                <el-tooltip class="item" effect="light" :content=" userInfo.sn" placement="top">
                   <li>
                     <el-icon>
                       <medal />
                     </el-icon>
-                    GoLang/JavaScript/Vue/Gorm
+                    {{ userInfo.sn }}
+                  </li>
+                </el-tooltip>
+                <el-tooltip class="item" effect="light" :content="userInfo.address"   placement="top">
+                  <li>
+                    <el-icon>
+                      <data-analysis />
+                    </el-icon>
+                    {{ userInfo.address }}
                   </li>
                 </el-tooltip>
 
@@ -72,22 +66,15 @@
                 <li>
                   <p class="title">密保手机</p>
                   <p class="desc">
-                    已绑定手机:1245678910
+                    {{userInfo.telephone}}
                     <a href="javascript:void(0)">立即修改</a>
                   </p>
                 </li>
                 <li>
-                  <p class="title">密保邮箱</p>
+                  <p class="title">电子邮箱</p>
                   <p class="desc">
-                    已绑定邮箱：gin-vue-admin@google.com.cn
+                    {{userInfo.email}}
                     <a href="javascript:void(0)">立即修改</a>
-                  </p>
-                </li>
-                <li>
-                  <p class="title">密保问题</p>
-                  <p class="desc">
-                    未设置密保问题
-                    <a href="javascript:void(0)">去设置</a>
                   </p>
                 </li>
                 <li>

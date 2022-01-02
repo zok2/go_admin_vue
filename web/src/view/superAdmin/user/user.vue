@@ -1,6 +1,22 @@
 <template>
   <div>
-    <warning-bar title="注：右上角头像下拉可切换角色" />
+    <div class="gva-search-box">
+      <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
+        <el-form-item label="用户昵称">
+          <el-input v-model="searchInfo.nickName" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="学号">
+          <el-input v-model="searchInfo.sn" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="searchInfo.email" placeholder="搜索条件" />
+        </el-form-item>
+        <el-form-item>
+          <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
+          <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button size="mini" type="primary" icon="plus" @click="addUser">新增用户</el-button>
@@ -11,8 +27,7 @@
             <CustomPic style="margin-top:8px" :pic-src="scope.row.headerImg" />
           </template>
         </el-table-column>
-        <el-table-column align="left" label="UUID" min-width="250" prop="uuid" />
-        <el-table-column align="left" label="用户名" min-width="150" prop="userName" />
+        <el-table-column align="left" label="用户名" min-width="100" prop="userName" />
         <el-table-column align="left" label="昵称" min-width="100" prop="nickName">
           <template #default="scope">
             <p v-if="!scope.row.editFlag" class="nickName">{{ scope.row.nickName }}
@@ -31,6 +46,14 @@
             </p>
           </template>
         </el-table-column>
+        <el-table-column align="left" label="手机号" prop="telephone" />
+        <el-table-column align="left" label="性别" prop="sex">
+          <template #default="scope">
+            {{ filterDict(scope.row.sex,"gender") }}
+          </template>
+        </el-table-column>
+        <el-table-column align="left" label="学号" prop="sn"  />
+        <el-table-column align="left" label="邮箱" prop="email" />
         <el-table-column align="left" label="用户角色" min-width="150">
           <template #default="scope">
             <el-cascader
@@ -84,6 +107,20 @@
         <el-form-item label="别名" prop="nickName">
           <el-input v-model="userInfo.nickName" />
         </el-form-item>
+        <el-form-item label="性别:">
+          <el-select v-model="userInfo.sex" placeholder="请选择" style="width:100%" clearable>
+            <el-option v-for="(item,key) in genderOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="学号:">
+          <el-input v-model.number="userInfo.sn" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="手机号:">
+          <el-input v-model="userInfo.telephone" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="邮箱:">
+          <el-input v-model="userInfo.email" clearable placeholder="请输入" />
+        </el-form-item>
         <el-form-item label="用户角色" prop="authorityId">
           <el-cascader
             v-model="userInfo.authorityIds"
@@ -100,7 +137,9 @@
             <div v-else class="header-img-box">从媒体库选择</div>
           </div>
         </el-form-item>
-
+        <el-form-item label="地址:">
+          <el-input v-model="userInfo.address" clearable placeholder="请输入" />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -127,17 +166,17 @@ import infoList from '@/mixins/infoList'
 import { mapGetters } from 'vuex'
 import CustomPic from '@/components/customPic/index.vue'
 import ChooseImg from '@/components/chooseImg/index.vue'
-import warningBar from '@/components/warningBar/warningBar.vue'
 import { setUserInfo, resetPassword } from '@/api/user.js'
 export default {
   name: 'Api',
-  components: { CustomPic, ChooseImg, warningBar },
+  components: { CustomPic, ChooseImg },
   mixins: [infoList],
   data() {
     return {
       listApi: getUserList,
       path: path,
       authOptions: [],
+      genderOptions: [],
       addUserDialog: false,
       backNickName: '',
       userInfo: {
@@ -146,7 +185,12 @@ export default {
         nickName: '',
         headerImg: '',
         authorityId: '',
-        authorityIds: []
+        authorityIds: [],
+        address: '',
+        sex: undefined,
+        sn: 0,
+        telephone: '',
+        email: '',
       },
       rules: {
         username: [
@@ -178,8 +222,15 @@ export default {
     await this.getTableData()
     const res = await getAuthorityList({ page: 1, pageSize: 999 })
     this.setOptions(res.data.list)
+    await this.getDict('gender')
   },
   methods: {
+    // 条件搜索前端看此方法
+    onSubmit() {
+      this.page = 1
+      this.pageSize = 10
+      this.getTableData()
+    },
     resetPassword(row) {
       this.$confirm(
         '是否将此用户密码重置为123456?',
