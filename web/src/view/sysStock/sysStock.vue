@@ -5,7 +5,7 @@
         <el-form-item label="编号">
           <el-input v-model="searchInfo.stockNo" placeholder="搜索条件" />
         </el-form-item>
-        <el-form-item label="图书ID">
+        <el-form-item label="图书">
           <el-input v-model="searchInfo.bookId" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item label="状态">
@@ -47,7 +47,7 @@
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="编号" prop="stockNo" width="120" />
-        <el-table-column align="left" label="图书ID" prop="bookId" width="120" />
+        <el-table-column align="left" label="图书" prop="bookId" width="120" />
         <el-table-column align="left" label="状态" prop="status" width="120">
             <template #default="scope">
             {{ filterDict(scope.row.status,"StockStatus") }}
@@ -79,7 +79,7 @@
         <el-form-item label="编号:">
           <el-input v-model="formData.stockNo" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="图书ID:">
+        <el-form-item label="图书:">
           <el-input v-model.number="formData.bookId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="状态:">

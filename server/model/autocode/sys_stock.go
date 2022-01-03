@@ -19,6 +19,6 @@ type SysStock struct {
 
 // TableName SysStock 表名
 func (SysStock) TableName() string {
-  return "sys_Stock"
+  return "sys_stock"
 }
 

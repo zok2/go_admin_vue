@@ -8,12 +8,6 @@
         <el-form-item label="图书编码">
           <el-input v-model="searchInfo.upc" placeholder="搜索条件" />
         </el-form-item>
-        <el-form-item label="类型">
-          <el-input v-model="searchInfo.typeId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-input v-model="searchInfo.status" placeholder="搜索条件" />
-        </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
           <el-button size="mini" icon="refresh" @click="onReset">重置</el-button>
@@ -43,24 +37,24 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-        <el-table-column align="left" label="日期" width="180">
-            <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
-        </el-table-column>
-        <el-table-column align="left" label="名称" prop="name" width="120" />
-        <el-table-column align="left" label="作者" prop="author" width="120" />
-        <el-table-column align="left" label="出版社" prop="press" width="120" />
-        <el-table-column align="left" label="出版时间" prop="pubDate" width="120" />
-        <el-table-column align="left" label="图书编码" prop="upc" width="120" />
-        <el-table-column align="left" label="书架编号" prop="bookcaseId" width="120" />
-        <el-table-column align="left" label="价格" prop="price" width="120" />
-        <el-table-column align="left" label="类型" prop="typeId" width="120" />
-        <el-table-column align="left" label="封面" prop="photo" width="120" />
-        <el-table-column align="left" label="状态" prop="status" width="120">
+        <el-table-column align="left" label="名称" prop="name"  />
+        <el-table-column align="left" label="作者" prop="author"  />
+        <el-table-column align="left" label="出版社" prop="press"  />
+        <el-table-column align="left" label="出版时间" prop="pubDate"  />
+        <el-table-column align="left" label="图书编码" prop="upc"  />
+        <el-table-column align="left" label="书架编号" prop="bookcaseId"  />
+        <el-table-column align="left" label="价格" prop="price"  />
+        <el-table-column align="left" label="类型" prop="typeId"  />
+        <el-table-column align="left" label="封面" prop="photo"  />
+        <el-table-column align="left" label="状态" prop="status" >
             <template #default="scope">
             {{ filterDict(scope.row.status,"status") }}
             </template>
         </el-table-column>
-        <el-table-column align="left" label="数量" prop="amount" width="120" />
+        <el-table-column align="left" label="数量" prop="amount"  />
+          <el-table-column align="left" label="日期" width="180">
+            <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+          </el-table-column>
         <el-table-column align="left" label="按钮组">
             <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updateSysBooks(scope.row)">变更</el-button>

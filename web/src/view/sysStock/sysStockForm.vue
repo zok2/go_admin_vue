@@ -5,7 +5,7 @@
         <el-form-item label="编号:">
           <el-input v-model="formData.stockNo" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="图书ID:">
+        <el-form-item label="图书:">
           <el-input v-model.number="formData.bookId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="状态:">
