@@ -103,14 +103,16 @@
         <el-form-item label="价格:">
           <el-input v-model.number="formData.price" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="类型:">
-          <el-input v-model.number="formData.typeId" clearable placeholder="请输入" />
-        </el-form-item>
-       
-        <el-form-item label="类型:">
-          <el-select v-model="formData.typeId" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in typeOptions" :key="key" :label="item.name" :value="item.id" />
-          </el-select>
+        <el-form-item label="类型" prop="typeId">
+          <el-cascader
+              ref="cascader"
+              v-model="formData.typeId"
+              style="width:100%"
+              :options="typeOptions"
+              :show-all-levels="false"
+              :props="{ multiple:false,checkStrictly: false,label:'name',value:'ID',disabled:'disabled',emitPath:false}"
+              :clearable="false"
+          />
         </el-form-item>
         <el-form-item label="封面:">
           <el-input v-model="formData.photo" clearable placeholder="请输入" />
