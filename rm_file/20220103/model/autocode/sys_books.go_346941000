@@ -3,7 +3,6 @@ package autocode
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-      "time"
 )
 
 // SysBooks 结构体
@@ -13,10 +12,10 @@ type SysBooks struct {
       Name  string `json:"name" form:"name" gorm:"column:name;comment:图书名称;size:100;"`
       Author  string `json:"author" form:"author" gorm:"column:author;comment:作者;size:50;"`
       Press  string `json:"press" form:"press" gorm:"column:press;comment:出版社;size:100;"`
-      PubDate  *time.Time `json:"pubDate" form:"pubDate" gorm:"column:pub_date;comment:出版时间;"`
+      PubDate  *time.Time `json:"pubDate" form:"pubDate" gorm:"column:pub_date;comment:出版时间;size:100;"`
       Upc  string `json:"upc" form:"upc" gorm:"column:upc;comment:图书编码;size:50;"`
       BookcaseId  string `json:"bookcaseId" form:"bookcaseId" gorm:"column:bookcase_id;comment:书架编号;size:20;"`
-      Price  *float64 `json:"price" form:"price" gorm:"column:price;comment:定价;size:10,2;"`
+      Price  *int `json:"price" form:"price" gorm:"column:price;comment:定价;size:10;"`
       TypeId  *int `json:"typeId" form:"typeId" gorm:"column:type_id;comment:类型id;size:11;"`
       Photo  string `json:"photo" form:"photo" gorm:"column:photo;comment:封面;size:200;"`
       Status  *int `json:"status" form:"status" gorm:"column:status;comment:状态;size:11;"`

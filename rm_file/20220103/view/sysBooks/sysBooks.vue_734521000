@@ -52,7 +52,11 @@
         <el-table-column align="left" label="出版时间" prop="pubDate" width="120" />
         <el-table-column align="left" label="图书编码" prop="upc" width="120" />
         <el-table-column align="left" label="书架编号" prop="bookcaseId" width="120" />
-        <el-table-column align="left" label="价格" prop="price" width="120" />
+        <el-table-column align="left" label="价格" prop="price" width="120">
+            <template #default="scope">
+            {{ filterDict(scope.row.price,"float64") }}
+            </template>
+        </el-table-column>
         <el-table-column align="left" label="类型" prop="typeId" width="120" />
         <el-table-column align="left" label="封面" prop="photo" width="120" />
         <el-table-column align="left" label="状态" prop="status" width="120">
@@ -101,18 +105,12 @@
           <el-input v-model="formData.bookcaseId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="价格:">
-          <el-input-number v-model="formData.price"  style="width:100%" :precision="2" clearable />
+          <el-select v-model="formData.price" placeholder="请选择" style="width:100%" clearable>
+            <el-option v-for="(item,key) in float64Options" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="类型" prop="typeId">
-          <el-cascader
-              ref="cascader"
-              v-model="formData.typeId"
-              style="width:100%"
-              :options="typeOptions"
-              :show-all-levels="false"
-              :props="{ multiple:false,checkStrictly: false,label:'name',value:'ID',disabled:'disabled',emitPath:false}"
-              :clearable="false"
-          />
+        <el-form-item label="类型:">
+          <el-input v-model.number="formData.typeId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="封面:">
           <el-input v-model="formData.photo" clearable placeholder="请输入" />
@@ -146,7 +144,6 @@ import {
   getSysBooksList
 } from '@/api/sysBooks' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
-import { getSysBookTypeList } from '../../api/sysBookType'
 export default {
   name: 'SysBooks',
   mixins: [infoList],
@@ -157,8 +154,8 @@ export default {
       type: '',
       deleteVisible: false,
       multipleSelection: [],
+      float64Options: [],
       statusOptions: [],
-      typeOptions: [],
       formData: {
         name: '',
         author: '',
@@ -166,7 +163,7 @@ export default {
         pubDate: new Date(),
         upc: '',
         bookcaseId: '',
-        price: 0,
+        price: undefined,
         typeId: 0,
         photo: '',
         status: undefined,
@@ -176,16 +173,14 @@ export default {
   },
   async created() {
     await this.getTableData()
+    await this.getDict('float64')
     await this.getDict('status')
-    const res = await getSysBookTypeList({ page: 1, pageSize: 999 })
-    this.typeOptions = []
-    this.setTypeOptions(res.data.list, this.typeOptions)
   },
   methods: {
-    onReset() {
-      this.searchInfo = {}
-    },
-    // 条件搜索前端看此方法
+  onReset() {
+    this.searchInfo = {}
+  },
+  // 条件搜索前端看此方法
     onSubmit() {
       this.page = 1
       this.pageSize = 10
@@ -237,30 +232,6 @@ export default {
         this.dialogFormVisible = true
       }
     },
-    setTypeOptions(TypeData, optionsData) {
-      console.log(TypeData)
-      TypeData &&
-      TypeData.forEach(item => {
-        if (item.children && item.children.length) {
-          const option = {
-            Id: item.ID,
-            name: item.name,
-            children: []
-          }
-          this.setTypeOptions(
-              item.children,
-              option.children,
-          )
-          optionsData.push(option)
-        } else {
-          const option = {
-            ID: item.ID,
-            name: item.name,
-          }
-          optionsData.push(option)
-        }
-      })
-    },
     closeDialog() {
       this.dialogFormVisible = false
       this.formData = {
@@ -270,7 +241,7 @@ export default {
         pubDate: new Date(),
         upc: '',
         bookcaseId: '',
-        price: 0,
+        price: undefined,
         typeId: 0,
         photo: '',
         status: undefined,

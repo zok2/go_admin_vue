@@ -21,7 +21,7 @@
           <el-input v-model="formData.bookcaseId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="价格:">
-          <el-input-number v-model="formData.price" :precision="2" clearable></el-input-number>
+          <el-input v-model.number="formData.price" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="类型:">
           <el-input v-model.number="formData.typeId" clearable placeholder="请输入" />

@@ -5,8 +5,8 @@
         <el-form-item label="名称">
           <el-input v-model="searchInfo.name" placeholder="搜索条件" />
         </el-form-item>
-        <el-form-item label="图书编码">
-          <el-input v-model="searchInfo.upc" placeholder="搜索条件" />
+        <el-form-item label="Isbn">
+          <el-input v-model="searchInfo.isbn" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item label="类型">
           <el-input v-model="searchInfo.typeId" placeholder="搜索条件" />
@@ -21,66 +21,66 @@
       </el-form>
     </div>
     <div class="gva-table-box">
-        <div class="gva-btn-list">
-            <el-button size="mini" type="primary" icon="plus" @click="openDialog">新增</el-button>
-            <el-popover v-model:visible="deleteVisible" placement="top" width="160">
-            <p>确定要删除吗？</p>
-            <div style="text-align: right; margin-top: 8px;">
-                <el-button size="mini" type="text" @click="deleteVisible = false">取消</el-button>
-                <el-button size="mini" type="primary" @click="onDelete">确定</el-button>
-            </div>
-            <template #reference>
-                <el-button icon="delete" size="mini" style="margin-left: 10px;" :disabled="!multipleSelection.length">删除</el-button>
-            </template>
-            </el-popover>
-        </div>
-        <el-table
+      <div class="gva-btn-list">
+        <el-button size="mini" type="primary" icon="plus" @click="openDialog">新增</el-button>
+        <el-popover v-model:visible="deleteVisible" placement="top" width="160">
+          <p>确定要删除吗？</p>
+          <div style="text-align: right; margin-top: 8px;">
+            <el-button size="mini" type="text" @click="deleteVisible = false">取消</el-button>
+            <el-button size="mini" type="primary" @click="onDelete">确定</el-button>
+          </div>
+          <template #reference>
+            <el-button icon="delete" size="mini" style="margin-left: 10px;" :disabled="!multipleSelection.length">删除</el-button>
+          </template>
+        </el-popover>
+      </div>
+      <el-table
         ref="multipleTable"
         style="width: 100%"
         tooltip-effect="dark"
         :data="tableData"
         row-key="ID"
         @selection-change="handleSelectionChange"
-        >
+      >
         <el-table-column type="selection" width="55" />
         <el-table-column align="left" label="日期" width="180">
-            <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="名称" prop="name" width="120" />
         <el-table-column align="left" label="作者" prop="author" width="120" />
         <el-table-column align="left" label="出版社" prop="press" width="120" />
         <el-table-column align="left" label="出版时间" prop="pubDate" width="120" />
-        <el-table-column align="left" label="图书编码" prop="upc" width="120" />
+        <el-table-column align="left" label="Isbn" prop="isbn" width="120" />
         <el-table-column align="left" label="书架编号" prop="bookcaseId" width="120" />
         <el-table-column align="left" label="价格" prop="price" width="120" />
         <el-table-column align="left" label="类型" prop="typeId" width="120" />
         <el-table-column align="left" label="封面" prop="photo" width="120" />
         <el-table-column align="left" label="状态" prop="status" width="120">
-            <template #default="scope">
+          <template #default="scope">
             {{ filterDict(scope.row.status,"status") }}
-            </template>
+          </template>
         </el-table-column>
         <el-table-column align="left" label="数量" prop="amount" width="120" />
         <el-table-column align="left" label="按钮组">
-            <template #default="scope">
+          <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="updateSysBooks(scope.row)">变更</el-button>
             <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row)">删除</el-button>
-            </template>
+          </template>
         </el-table-column>
-        </el-table>
-        <div class="gva-pagination">
-            <el-pagination
-            layout="total, sizes, prev, pager, next, jumper"
-            :current-page="page"
-            :page-size="pageSize"
-            :page-sizes="[10, 30, 50, 100]"
-            :total="total"
-            @current-change="handleCurrentChange"
-            @size-change="handleSizeChange"
-            />
-        </div>
+      </el-table>
+      <div class="gva-pagination">
+        <el-pagination
+          layout="total, sizes, prev, pager, next, jumper"
+          :current-page="page"
+          :page-size="pageSize"
+          :page-sizes="[10, 30, 50, 100]"
+          :total="total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        />
+      </div>
     </div>
-    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="添加图书">
       <el-form :model="formData" label-position="right" label-width="80px">
         <el-form-item label="名称:">
           <el-input v-model="formData.name" clearable placeholder="请输入" />
@@ -94,14 +94,14 @@
         <el-form-item label="出版时间:">
           <el-date-picker v-model="formData.pubDate" type="date" style="width:100%" placeholder="选择日期" clearable />
         </el-form-item>
-        <el-form-item label="图书编码:">
-          <el-input v-model="formData.upc" clearable placeholder="请输入" />
+        <el-form-item label="Isbn:">
+          <el-input v-model="formData.isbn" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="书架编号:">
-          <el-input v-model="formData.bookcaseId" clearable placeholder="请输入" />
+          <el-input v-model.number="formData.bookcaseId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="价格:">
-          <el-input-number v-model="formData.price"  style="width:100%" :precision="2" clearable />
+          <el-input v-model.number="formData.price" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="类型" prop="typeId">
           <el-cascader
@@ -164,8 +164,8 @@ export default {
         author: '',
         press: '',
         pubDate: new Date(),
-        upc: '',
-        bookcaseId: '',
+        isbn: '',
+        bookcaseId: 0,
         price: 0,
         typeId: 0,
         photo: '',
@@ -268,8 +268,8 @@ export default {
         author: '',
         press: '',
         pubDate: new Date(),
-        upc: '',
-        bookcaseId: '',
+        isbn: '',
+        bookcaseId: 0,
         price: 0,
         typeId: 0,
         photo: '',

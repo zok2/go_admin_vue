@@ -101,18 +101,10 @@
           <el-input v-model="formData.bookcaseId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="价格:">
-          <el-input-number v-model="formData.price"  style="width:100%" :precision="2" clearable />
+          <el-input v-model.number="formData.price" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="类型" prop="typeId">
-          <el-cascader
-              ref="cascader"
-              v-model="formData.typeId"
-              style="width:100%"
-              :options="typeOptions"
-              :show-all-levels="false"
-              :props="{ multiple:false,checkStrictly: false,label:'name',value:'ID',disabled:'disabled',emitPath:false}"
-              :clearable="false"
-          />
+        <el-form-item label="类型:">
+          <el-input v-model.number="formData.typeId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="封面:">
           <el-input v-model="formData.photo" clearable placeholder="请输入" />
@@ -146,7 +138,6 @@ import {
   getSysBooksList
 } from '@/api/sysBooks' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
-import { getSysBookTypeList } from '../../api/sysBookType'
 export default {
   name: 'SysBooks',
   mixins: [infoList],
@@ -158,7 +149,6 @@ export default {
       deleteVisible: false,
       multipleSelection: [],
       statusOptions: [],
-      typeOptions: [],
       formData: {
         name: '',
         author: '',
@@ -177,15 +167,12 @@ export default {
   async created() {
     await this.getTableData()
     await this.getDict('status')
-    const res = await getSysBookTypeList({ page: 1, pageSize: 999 })
-    this.typeOptions = []
-    this.setTypeOptions(res.data.list, this.typeOptions)
   },
   methods: {
-    onReset() {
-      this.searchInfo = {}
-    },
-    // 条件搜索前端看此方法
+  onReset() {
+    this.searchInfo = {}
+  },
+  // 条件搜索前端看此方法
     onSubmit() {
       this.page = 1
       this.pageSize = 10
@@ -236,30 +223,6 @@ export default {
         this.formData = res.data.resysBooks
         this.dialogFormVisible = true
       }
-    },
-    setTypeOptions(TypeData, optionsData) {
-      console.log(TypeData)
-      TypeData &&
-      TypeData.forEach(item => {
-        if (item.children && item.children.length) {
-          const option = {
-            Id: item.ID,
-            name: item.name,
-            children: []
-          }
-          this.setTypeOptions(
-              item.children,
-              option.children,
-          )
-          optionsData.push(option)
-        } else {
-          const option = {
-            ID: item.ID,
-            name: item.name,
-          }
-          optionsData.push(option)
-        }
-      })
     },
     closeDialog() {
       this.dialogFormVisible = false
