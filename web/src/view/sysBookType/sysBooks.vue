@@ -168,9 +168,11 @@ export default {
         bookcaseId: 0,
         price: 0,
         typeId: 0,
+        type: {},
         photo: '',
         status: undefined,
         amount: 0,
+        stock: []
       }
     }
   },

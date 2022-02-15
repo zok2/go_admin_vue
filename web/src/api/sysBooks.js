@@ -64,6 +64,20 @@ export const updateSysBooks = (data) => {
   })
 }
 
+export const borrowSysBooks = (data) => {
+  return service({
+    url: '/sysBooks/borrowSysBooks',
+    method: 'post',
+    data
+  })
+}
+export const alsoSysBooks = (data) => {
+  return service({
+    url: '/sysBooks/alsoSysBooks',
+    method: 'post',
+    data
+  })
+}
 // @Tags SysBooks
 // @Summary 用id查询SysBooks
 // @Security ApiKeyAuth

@@ -64,6 +64,13 @@ export const getUserList = (data) => {
   })
 }
 
+export const findUsers = (params) => {
+  return service({
+    url: '/user/findUsers',
+    method: 'get',
+    params
+  })
+}
 // @Tags User
 // @Summary 设置用户权限
 // @Security ApiKeyAuth

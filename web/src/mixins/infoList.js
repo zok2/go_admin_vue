@@ -31,6 +31,12 @@ export default {
       const rowLabel = this[type + 'Options'] && this[type + 'Options'].filter(item => item.value === value)
       return rowLabel && rowLabel[0] && rowLabel[0].label
     },
+    filterNum(amount, stock) {
+      console.log(stock)
+      const Num = stock.length + '/' + amount
+      return Num
+    },
+
     async getDict(type) {
       const dicts = await getDict(type)
       this[type + 'Options'] = dicts

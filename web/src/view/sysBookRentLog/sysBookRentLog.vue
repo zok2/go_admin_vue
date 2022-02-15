@@ -2,17 +2,8 @@
   <div>
     <div class="gva-search-box">
       <el-form :inline="true" :model="searchInfo" class="demo-form-inline">
-        <el-form-item label="编号">
-          <el-input v-model="searchInfo.stockNo" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="图书">
-          <el-input v-model="searchInfo.bookId" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-input v-model="searchInfo.status" placeholder="搜索条件" />
-        </el-form-item>
-        <el-form-item label="借阅者">
-          <el-input v-model="searchInfo.userId" placeholder="搜索条件" />
+        <el-form-item label="类型">
+          <el-input v-model="searchInfo.type" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" icon="search" @click="onSubmit">查询</el-button>
@@ -43,29 +34,24 @@
         @selection-change="handleSelectionChange"
         >
         <el-table-column type="selection" width="55" />
-
-        <el-table-column align="left" label="编号" prop="stockNo" />
-        <el-table-column align="left" label="图书" prop="" >
-          <template #default="scope">{{ scope.row.book.name }}</template>
-          </el-table-column>
-        <el-table-column align="left" label="状态" prop="status" width="120">
-            <template #default="scope">
-            {{ filterDict(scope.row.status,"StockStatus") }}
-            </template>
-        </el-table-column>
-        <el-table-column align="left" label="借阅者" prop="userId" width="120">
-          <template #default="scope">{{ scope.row.borrower.nickName }}</template>
-          </el-table-column>
-          <el-table-column align="left" label="创建人" prop="creatorId" width="120">
-            <template #default="scope">{{ scope.row.creator.nickName }}</template>
-          </el-table-column>
-        <el-table-column align="left" label="备注" prop="remark" />
+          <el-table-column align="left" label="ID" prop="ID" width="120" />
+        <el-table-column align="left" label="图书id" prop="bookId" width="120" />
+        <el-table-column align="left" label="创建人id" prop="creatorId" width="120" />
+        <el-table-column align="left" label="借阅者id" prop="userId" width="120" />
+        <el-table-column align="left" label="类型" prop="type" width="120">
           <el-table-column align="left" label="日期" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
           </el-table-column>
+            <template #default="scope">
+            {{ filterDict(scope.row.type,"type") }}
+            </template>
+        </el-table-column>
+        <el-table-column align="left" label="备注" prop="remark" width="120" />
+        <el-table-column align="left" label="库存id" prop="stockId" width="120" />
         <el-table-column align="left" label="按钮组">
             <template #default="scope">
-              <el-button type="text" icon="edit" size="small" class="table-button" @click="updateSysStock(scope.row)">借书记录</el-button>
+            <el-button type="text" icon="edit" size="small" class="table-button" @click="updateSysBookRentLog(scope.row)">变更</el-button>
+            <el-button type="text" icon="delete" size="mini" @click="deleteRow(scope.row)">删除</el-button>
             </template>
         </el-table-column>
         </el-table>
@@ -83,25 +69,25 @@
     </div>
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
-        <el-form-item label="编号:">
-          <el-input v-model="formData.stockNo" clearable placeholder="请输入" />
-        </el-form-item>
-        <el-form-item label="图书:">
+        <el-form-item label="图书id:">
           <el-input v-model.number="formData.bookId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="状态:">
-          <el-select v-model="formData.status" placeholder="请选择" style="width:100%" clearable>
-            <el-option v-for="(item,key) in StockStatusOptions" :key="key" :label="item.label" :value="item.value" />
-          </el-select>
+        <el-form-item label="创建人id:">
+          <el-input v-model.number="formData.creatorId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="借阅者:">
+        <el-form-item label="借阅者id:">
           <el-input v-model.number="formData.userId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="创建人:">
-          <el-input v-model.number="formData.creatorId" clearable placeholder="请输入" />
+        <el-form-item label="类型:">
+          <el-select v-model="formData.type" placeholder="请选择" style="width:100%" clearable>
+            <el-option v-for="(item,key) in typeOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="备注:">
           <el-input v-model="formData.remark" clearable placeholder="请输入" />
+        </el-form-item>
+        <el-form-item label="库存id:">
+          <el-input v-model.number="formData.stockId" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -116,38 +102,38 @@
 
 <script>
 import {
-  createSysStock,
-  deleteSysStock,
-  deleteSysStockByIds,
-  updateSysStock,
-  findSysStock,
-  getSysStockList
-} from '@/api/sysStock' //  此处请自行替换地址
+  createSysBookRentLog,
+  deleteSysBookRentLog,
+  deleteSysBookRentLogByIds,
+  updateSysBookRentLog,
+  findSysBookRentLog,
+  getSysBookRentLogList
+} from '@/api/sysBookRentLog' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
 export default {
-  name: 'SysStock',
+  name: 'SysBookRentLog',
   mixins: [infoList],
   data() {
     return {
-      listApi: getSysStockList,
+      listApi: getSysBookRentLogList,
       dialogFormVisible: false,
       type: '',
       deleteVisible: false,
       multipleSelection: [],
-      StockStatusOptions: [],
+      typeOptions: [],
       formData: {
-        stockNo: '',
         bookId: 0,
-        status: undefined,
-        userId: 0,
         creatorId: 0,
+        userId: 0,
+        type: undefined,
         remark: '',
+        stockId: 0,
       }
     }
   },
   async created() {
     await this.getTableData()
-    await this.getDict('StockStatus')
+    await this.getDict('type')
   },
   methods: {
   onReset() {
@@ -168,7 +154,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.deleteSysStock(row)
+        this.deleteSysBookRentLog(row)
       })
     },
     async onDelete() {
@@ -184,7 +170,7 @@ export default {
         this.multipleSelection.map(item => {
           ids.push(item.ID)
         })
-      const res = await deleteSysStockByIds({ ids })
+      const res = await deleteSysBookRentLogByIds({ ids })
       if (res.code === 0) {
         this.$message({
           type: 'success',
@@ -197,27 +183,27 @@ export default {
         this.getTableData()
       }
     },
-    async updateSysStock(row) {
-      const res = await findSysStock({ ID: row.ID })
+    async updateSysBookRentLog(row) {
+      const res = await findSysBookRentLog({ ID: row.ID })
       this.type = 'update'
       if (res.code === 0) {
-        this.formData = res.data.resysStock
+        this.formData = res.data.resysBookRentLog
         this.dialogFormVisible = true
       }
     },
     closeDialog() {
       this.dialogFormVisible = false
       this.formData = {
-        stockNo: '',
         bookId: 0,
-        status: undefined,
-        userId: 0,
         creatorId: 0,
+        userId: 0,
+        type: undefined,
         remark: '',
+        stockId: 0,
       }
     },
-    async deleteSysStock(row) {
-      const res = await deleteSysStock({ ID: row.ID })
+    async deleteSysBookRentLog(row) {
+      const res = await deleteSysBookRentLog({ ID: row.ID })
       if (res.code === 0) {
         this.$message({
           type: 'success',
@@ -233,13 +219,13 @@ export default {
       let res
       switch (this.type) {
         case 'create':
-          res = await createSysStock(this.formData)
+          res = await createSysBookRentLog(this.formData)
           break
         case 'update':
-          res = await updateSysStock(this.formData)
+          res = await updateSysBookRentLog(this.formData)
           break
         default:
-          res = await createSysStock(this.formData)
+          res = await createSysBookRentLog(this.formData)
           break
       }
       if (res.code === 0) {
