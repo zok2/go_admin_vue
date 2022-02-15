@@ -2,8 +2,7 @@
 package autocode
 
 import (
-      "github.com/flipped-aurora/gin-vue-admin/server/global"
-      "github.com/flipped-aurora/gin-vue-admin/server/model/system"
+	"github.com/flipped-aurora/gin-vue-admin/server/global"
 )
 
 // SysStock 结构体
@@ -12,14 +11,9 @@ type SysStock struct {
       global.GVA_MODEL
       StockNo  string `json:"stockNo" form:"stockNo" gorm:"column:stock_no;comment:编号;size:50;"`
       BookId  *int `json:"bookId" form:"bookId" gorm:"column:book_id;comment:图书id;size:11;"`
-      Book SysBooks  `json:"book" gorm:"foreignKey:BookId;"`
       Status  *int `json:"status" form:"status" gorm:"column:status;comment:图书状态;size:11;"`
       UserId  *int `json:"userId" form:"userId" gorm:"column:user_id;comment:借阅者id;size:11;"`
-      Borrower system.SysUser  `json:"borrower" gorm:"foreignKey:UserId;"`
-      Log  []SysBookRentLog `json:"Log" gorm:"foreignKey:StockId;"`
       CreatorId  *int `json:"creatorId" form:"creatorId" gorm:"column:creator_id;comment:创建人id;size:11;"`
-      Creator  system.SysUser  `json:"creator" gorm:"foreignKey:CreatorId;"`
-      Remark  string `json:"remark" form:"remark" gorm:"column:remark;comment:备注;size:200;"`
 }
 
 

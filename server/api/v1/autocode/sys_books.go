@@ -2,13 +2,13 @@ package autocode
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
+	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type SysBooksApi struct {
@@ -49,12 +49,23 @@ func (sysBooksApi *SysBooksApi) CreateSysBooks(c *gin.Context) {
 func (sysBooksApi *SysBooksApi) DeleteSysBooks(c *gin.Context) {
 	var sysBooks autocode.SysBooks
 	_ = c.ShouldBindJSON(&sysBooks)
-	if err := sysBooksService.DeleteSysBooks(sysBooks); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
-		response.FailWithMessage("删除失败", c)
-	} else {
-		response.OkWithMessage("删除成功", c)
+	Status := 2
+	BookId := int(sysBooks.ID)
+	sysStock :=  autocode.SysStock{Status:&Status,BookId:&BookId}
+	if err,total := sysStockService.GetSysStockInfoTotal(sysStock); err != nil || total != 0 {
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		response.FailWithMessage("删除失败,有未归还书籍", c)
+	}else {
+		if err := sysBooksService.DeleteSysBooks(sysBooks); err != nil {
+			global.GVA_LOG.Error("删除失败!", zap.Error(err))
+			response.FailWithMessage("删除失败", c)
+		} else {
+			IDS := request.IdsReq{Ids: []int{1}}
+			_ = sysStockService.DeleteSysStockByBookIds(IDS)
+			response.OkWithMessage("删除成功", c)
+		}
 	}
+
 }
 
 // DeleteSysBooksByIds 批量删除SysBooks
@@ -69,7 +80,18 @@ func (sysBooksApi *SysBooksApi) DeleteSysBooks(c *gin.Context) {
 func (sysBooksApi *SysBooksApi) DeleteSysBooksByIds(c *gin.Context) {
 	var IDS request.IdsReq
     _ = c.ShouldBindJSON(&IDS)
-	if err := sysBooksService.DeleteSysBooksByIds(IDS); err != nil {
+	for _,value :=range IDS.Ids{
+		Status := 2
+		BookId := value
+		sysStock :=  autocode.SysStock{Status:&Status,BookId:&BookId}
+		if err,total := sysStockService.GetSysStockInfoTotal(sysStock); err != nil || total!=0 {
+			response.FailWithMessage("批量删除失败,部分书籍中有未归还书籍", c)
+			return
+		}
+	}
+
+   	if err := sysBooksService.DeleteSysBooksByIds(IDS); err != nil {
+   		_ = sysStockService.DeleteSysStockByIds(IDS)
         global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
@@ -107,15 +129,36 @@ func (sysBooksApi *SysBooksApi) UpdateSysBooks(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
 // @Router /sysBooks/findSysBooks [get]
 func (sysBooksApi *SysBooksApi) FindSysBooks(c *gin.Context) {
-	var sysBooks autocode.SysBooks
-	_ = c.ShouldBindQuery(&sysBooks)
-	if err, resysBooks := sysBooksService.GetSysBooks(sysBooks.ID); err != nil {
+	var SysBookFindSearch autocodeReq.SysBookFindSearch
+	_ = c.ShouldBindQuery(&SysBookFindSearch)
+	if err, resysBooks := sysBooksService.GetSysBooks(SysBookFindSearch.ID,SysBookFindSearch.StockStatus); err != nil {
         global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"resysBooks": resysBooks}, c)
 	}
 }
+
+// BorrowedSysBooks 借书-还书
+// @Tags SysBooks
+// @Summary 用id查询SysBooks
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data query autocode.SysBooks true "用id查询SysBooks"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
+// @Router /sysBooks/BorrowSysBooks [POST]
+func (sysBooksApi *SysBooksApi) BorrowedSysBooks(c *gin.Context) {
+		var sysBookRentLog autocode.SysBookRentLog
+		_ = c.ShouldBindJSON(&sysBookRentLog)
+		if err := sysStockService.UpdateSysStock(sysBooks); err != nil {
+			global.GVA_LOG.Error("更新失败!", zap.Error(err))
+			response.FailWithMessage("更新失败", c)
+		} else {
+			response.OkWithMessage("更新成功", c)
+		}
+}
+
 
 // GetSysBooksList 分页获取SysBooks列表
 // @Tags SysBooks

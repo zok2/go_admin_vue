@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	request2 "github.com/flipped-aurora/gin-vue-admin/server/request"
 	"strconv"
 
@@ -130,6 +131,25 @@ func (b *BaseApi) Register(c *gin.Context) {
 	}
 }
 
+// FindSysBooks 用id查询SysBooks
+// @Tags SysBooks
+// @Summary 用id查询SysBooks
+// @Security ApiKeyAuth
+// @accept application/json
+// @Produce application/json
+// @Param data query autocode.SysBooks true "用id查询SysBooks"
+// @Success 200 {string} string "{"success":true,"data":{},"msg":"查询成功"}"
+// @Router /sysBooks/findSysBooks [get]
+func (b *BaseApi) FindUsers(c *gin.Context) {
+	var sysBooks autocode.SysBooks
+	_ = c.ShouldBindQuery(&sysBooks)
+	if err, resysUsers := userService.GetUsers(); err != nil {
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		response.FailWithMessage("查询失败", c)
+	} else {
+		response.OkWithData(resysUsers, c)
+	}
+}
 // @Tags SysUser
 // @Summary 用户修改密码
 // @Security ApiKeyAuth

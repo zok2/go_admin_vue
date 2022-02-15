@@ -182,6 +182,11 @@ func (userService *UserService) GetUserInfo(uuid uuid.UUID) (err error, user sys
 	return err, reqUser
 }
 
+func (userService *UserService)GetUsers() (err error, user []system.SysUser) {
+	err = global.GVA_DB.Find(&user).Error
+	return
+}
+
 //@author: [SliverHorn](https://github.com/SliverHorn)
 //@function: FindUserById
 //@description: 通过id获取用户信息

@@ -13,14 +13,14 @@ type SysBookTypeService struct {
 }
 
 // CreateSysBookType 创建SysBookType记录
-// Author [piexlmax](https://github.com/piexlmax)
+
 func (sysBookTypeService *SysBookTypeService) CreateSysBookType(sysBookType autocode.SysBookType) (err error) {
 	err = global.GVA_DB.Create(&sysBookType).Error
 	return err
 }
 
 // DeleteSysBookType 删除SysBookType记录
-// Author [piexlmax](https://github.com/piexlmax)
+
 func (sysBookTypeService *SysBookTypeService)DeleteSysBookType(sysBookType autocode.SysBookType) (err error) {
 	if !errors.Is(global.GVA_DB.Where("type_id = ?", sysBookType.ID).First(&autocode.SysBooks{}).Error, gorm.ErrRecordNotFound) {
 		return errors.New("此角色有用户正在使用禁止删除")
@@ -33,28 +33,28 @@ func (sysBookTypeService *SysBookTypeService)DeleteSysBookType(sysBookType autoc
 }
 
 // DeleteSysBookTypeByIds 批量删除SysBookType记录
-// Author [piexlmax](https://github.com/piexlmax)
+
 func (sysBookTypeService *SysBookTypeService)DeleteSysBookTypeByIds(ids request.IdsReq) (err error) {
 	err = global.GVA_DB.Delete(&[]autocode.SysBookType{},"id in ?",ids.Ids).Error
 	return err
 }
 
 // UpdateSysBookType 更新SysBookType记录
-// Author [piexlmax](https://github.com/piexlmax)
+
 func (sysBookTypeService *SysBookTypeService)UpdateSysBookType(sysBookType autocode.SysBookType) (err error) {
 	err = global.GVA_DB.Save(&sysBookType).Error
 	return err
 }
 
 // GetSysBookType 根据id获取SysBookType记录
-// Author [piexlmax](https://github.com/piexlmax)
+
 func (sysBookTypeService *SysBookTypeService)GetSysBookType(id uint) (err error, sysBookType autocode.SysBookType) {
 	err = global.GVA_DB.Where("id = ?", id).First(&sysBookType).Error
 	return
 }
 
 // GetSysBookTypeInfoList 分页获取SysBookType记录
-// Author [piexlmax](https://github.com/piexlmax)
+
 func (sysBookTypeService *SysBookTypeService)GetSysBookTypeInfoList(info autoCodeReq.SysBookTypeSearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)

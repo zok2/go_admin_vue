@@ -3,65 +3,50 @@ package autocode
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
-	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+    autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 )
 
 type SysStockService struct {
 }
 
 // CreateSysStock 创建SysStock记录
-
+// Author [piexlmax](https://github.com/piexlmax)
 func (sysStockService *SysStockService) CreateSysStock(sysStock autocode.SysStock) (err error) {
 	err = global.GVA_DB.Create(&sysStock).Error
 	return err
 }
 
 // DeleteSysStock 删除SysStock记录
-
+// Author [piexlmax](https://github.com/piexlmax)
 func (sysStockService *SysStockService)DeleteSysStock(sysStock autocode.SysStock) (err error) {
 	err = global.GVA_DB.Delete(&sysStock).Error
 	return err
 }
 
 // DeleteSysStockByIds 批量删除SysStock记录
-
+// Author [piexlmax](https://github.com/piexlmax)
 func (sysStockService *SysStockService)DeleteSysStockByIds(ids request.IdsReq) (err error) {
 	err = global.GVA_DB.Delete(&[]autocode.SysStock{},"id in ?",ids.Ids).Error
 	return err
 }
 
-// DeleteSysStockByBookIds 批量删除SysStock记录
-
-func (sysStockService *SysStockService)DeleteSysStockByBookIds(ids request.IdsReq) (err error) {
-	err = global.GVA_DB.Delete(&[]autocode.SysStock{},"book_id in ?",ids.Ids).Error
-	return err
-}
-
 // UpdateSysStock 更新SysStock记录
-
+// Author [piexlmax](https://github.com/piexlmax)
 func (sysStockService *SysStockService)UpdateSysStock(sysStock autocode.SysStock) (err error) {
 	err = global.GVA_DB.Save(&sysStock).Error
 	return err
 }
 
-func (sysStockService *SysStockService)Changetatus(s autocode.SysStock,status int) (err error,s autocode.SysStock)  {
-	var stock autocode.SysStock
-	err = global.GVA_DB.Where("id = ? AND and status = ?", s.ID, s.Status).First(&stock).Update("status",status ).Error
-	return err, s
-}
-
 // GetSysStock 根据id获取SysStock记录
-
+// Author [piexlmax](https://github.com/piexlmax)
 func (sysStockService *SysStockService)GetSysStock(id uint) (err error, sysStock autocode.SysStock) {
-	err = global.GVA_DB.Preload("Book").Preload("Log").Preload("Borrower").Preload("Creator").Where("id = ?", id).First(&sysStock).Error
+	err = global.GVA_DB.Where("id = ?", id).First(&sysStock).Error
 	return
 }
 
 // GetSysStockInfoList 分页获取SysStock记录
-
+// Author [piexlmax](https://github.com/piexlmax)
 func (sysStockService *SysStockService)GetSysStockInfoList(info autoCodeReq.SysStockSearch) (err error, list interface{}, total int64) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
@@ -85,21 +70,6 @@ func (sysStockService *SysStockService)GetSysStockInfoList(info autoCodeReq.SysS
 	if err!=nil {
     	return
     }
-
-	err = db.Limit(limit).Preload("Book").Preload("Borrower").Preload("Creator").Offset(offset).Find(&sysStocks).Error
+	err = db.Limit(limit).Offset(offset).Find(&sysStocks).Error
 	return err, sysStocks, total
-}
-
-func (sysStockService *SysStockService)GetSysStockInfoTotal(info autocode.SysStock) (err error, total int64) {
-	// 创建db
-	db := global.GVA_DB.Model(&autocode.SysStock{})
-	// 如果有条件搜索 下方会自动创建搜索语句
-	if info.BookId != nil {
-		db = db.Where("book_id = ?",info.BookId)
-	}
-	if info.Status != nil {
-		db = db.Where("status = ?",info.Status)
-	}
-	err = db.Count(&total).Error
-	return err, total
 }

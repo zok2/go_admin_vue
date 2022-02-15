@@ -5,7 +5,6 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
       "time"
 )
-
 // SysBooks 结构体
 // 如果含有time.Time 请自行import time包
 type SysBooks struct {
@@ -18,7 +17,8 @@ type SysBooks struct {
       BookcaseId  string `json:"bookcaseId" form:"bookcaseId" gorm:"column:bookcase_id;comment:书架编号;size:20;"`
       Price  *float64 `json:"price" form:"price" gorm:"column:price;comment:定价;size:10,2;"`
       TypeId  *int `json:"typeId" form:"typeId" gorm:"column:type_id;comment:类型id;size:11;"`
-      Type   SysBookType   `json:"type" gorm:"foreignKey:TypeId;references:ID;comment:分类"`
+      Type   SysBookType   `json:"type" gorm:"foreignKey:TypeId;"`
+      Stock  []SysStock `json:"stock" gorm:"foreignKey:BookId;"`
       Photo  string `json:"photo" form:"photo" gorm:"column:photo;comment:封面;size:200;"`
       Status  *int `json:"status" form:"status" gorm:"column:status;comment:状态;size:11;"`
       Amount  *int `json:"amount" form:"amount" gorm:"column:amount;comment:数量;size:11;"`
