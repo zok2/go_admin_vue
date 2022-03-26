@@ -3,7 +3,7 @@
  */
 
 const config = {
-  appName: '北邮图书管理系统',
+  appName: '图书管理系统',
   appLogo: 'https://www.gin-vue-admin.com/img/logo.png',
   showViteLogo: true
 }

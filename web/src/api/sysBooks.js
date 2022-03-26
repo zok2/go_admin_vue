@@ -66,14 +66,14 @@ export const updateSysBooks = (data) => {
 
 export const borrowSysBooks = (data) => {
   return service({
-    url: '/sysBooks/borrowSysBooks',
+    url: '/sysBooks/borrowedSysBooks',
     method: 'post',
     data
   })
 }
 export const alsoSysBooks = (data) => {
   return service({
-    url: '/sysBooks/alsoSysBooks',
+    url: '/sysBooks/borrowedSysBooks',
     method: 'post',
     data
   })

@@ -480,7 +480,8 @@ export default {
             stockId: this.borrowData.stockId,
             userId: this.borrowData.userId,
             remark: this.borrowData.remark,
-            type: 1
+            type: 1,
+            status: 2
           })
           break
         case 'also':
@@ -490,7 +491,8 @@ export default {
             stockId: this.borrowData.stockId,
             userId: this.borrowData.userId,
             remark: this.borrowData.remark,
-            type: 2
+            type: 2,
+            status: 3
           })
           break
         default:
