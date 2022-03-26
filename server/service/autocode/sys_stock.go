@@ -5,8 +5,6 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autoCodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
-	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 )
 
 type SysStockService struct {
@@ -47,10 +45,10 @@ func (sysStockService *SysStockService)UpdateSysStock(sysStock autocode.SysStock
 	return err
 }
 
-func (sysStockService *SysStockService)Changetatus(s autocode.SysStock,status int) (err error,s autocode.SysStock)  {
+func (sysStockService *SysStockService)ChangeStatus(Id int, status int) (err error)  {
 	var stock autocode.SysStock
-	err = global.GVA_DB.Where("id = ? AND and status = ?", s.ID, s.Status).First(&stock).Update("status",status ).Error
-	return err, s
+	err = global.GVA_DB.Where("id = ? ", Id ).First(&stock).Update("status",status ).Error
+	return err
 }
 
 // GetSysStock 根据id获取SysStock记录

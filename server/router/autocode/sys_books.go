@@ -16,6 +16,7 @@ func (s *SysBooksRouter) InitSysBooksRouter(Router *gin.RouterGroup) {
 	var sysBooksApi = v1.ApiGroupApp.AutoCodeApiGroup.SysBooksApi
 	{
 		sysBooksRouter.POST("createSysBooks", sysBooksApi.CreateSysBooks)   // 新建SysBooks
+		sysBooksRouter.POST("borrowedSysBooks", sysBooksApi.BorrowedSysBooks)   // 新建SysBooks
 		sysBooksRouter.DELETE("deleteSysBooks", sysBooksApi.DeleteSysBooks) // 删除SysBooks
 		sysBooksRouter.DELETE("deleteSysBooksByIds", sysBooksApi.DeleteSysBooksByIds) // 批量删除SysBooks
 		sysBooksRouter.PUT("updateSysBooks", sysBooksApi.UpdateSysBooks)    // 更新SysBooks
