@@ -1,15 +1,19 @@
 package autocode
 
 import (
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	autocodeReq "github.com/flipped-aurora/gin-vue-admin/server/model/autocode/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/example"
 	"github.com/flipped-aurora/gin-vue-admin/server/service"
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strconv"
+	"time"
 )
 
 type SysBooksApi struct {
@@ -35,6 +39,36 @@ func (sysBooksApi *SysBooksApi) CreateSysBooks(c *gin.Context) {
 	} else {
 		response.OkWithMessage("创建成功", c)
 	}
+}
+
+
+func (sysBooksApi *SysBooksApi) ImportExcel(c *gin.Context) {
+	_, header, err := c.Request.FormFile("file")
+	if err != nil {
+		global.GVA_LOG.Error("接收文件失败!", zap.Error(err))
+		response.FailWithMessage("接收文件失败", c)
+		return
+	}
+	var excelInfo example.ExcelBook
+	_ = c.ShouldBindJSON(&excelInfo)
+
+	now := time.Now()            //获取当前时间
+	timestamp1 := strconv.FormatInt(now.Unix(),10)     //时间戳
+
+	_ = c.SaveUploadedFile(header, global.GVA_CONFIG.Excel.Dir+timestamp1+".xlsx")
+
+	BookInfoList ,err := excelService.ParseBookList2Excel(timestamp1+".xlsx")
+	for _,book := range BookInfoList{
+		_ = sysBooksService.CreateSysBooks(book)
+	}
+	if err != nil {
+		global.GVA_LOG.Error("转换Excel失败!", zap.Error(err))
+		response.FailWithMessage("转换Excel失败", c)
+		return
+	}
+
+	c.Writer.Header().Add("success", "true")
+	response.OkWithMessage("导入成功", c)
 }
 
 // DeleteSysBooks 删除SysBooks
@@ -139,6 +173,7 @@ func (sysBooksApi *SysBooksApi) FindSysBooks(c *gin.Context) {
 	}
 }
 
+
 // BorrowedSysBooks 借书-还书
 // @Tags SysBooks
 // @Summary 用id查询SysBooks
@@ -152,7 +187,29 @@ func (sysBooksApi *SysBooksApi) BorrowedSysBooks(c *gin.Context) {
 	var sysStockBorrowed autocodeReq.SysStockBorrowedStruct
 	_ = c.ShouldBindJSON(&sysStockBorrowed)
 
-	if err := sysStockService.ChangeStatus(sysStockBorrowed.StockId, sysStockBorrowed.Status);err != nil {
+	Remark := sysStockBorrowed.Remark
+	Return_at := ""
+	message := "更新成功"
+	nowTime := time.Now()
+	day := sysStockBorrowed.ReturnAt
+	if sysStockBorrowed.Type == 1 {
+		beforeTime := nowTime.AddDate(0, 0, day)
+		beforeTimeS := beforeTime.Unix() // 秒时间戳
+		Return_at = time.Unix(beforeTimeS, 0).Format("2006-01-02") // 固定格式的日期时间戳
+	}else {
+		_,Stock := sysStockService.GetSysStock(uint(sysStockBorrowed.StockId))
+		beforeTime, _ := time.Parse("2006-01-02",Stock.ReturnAt)
+		beforeTimeS := beforeTime.Unix() // 秒时间戳
+		if beforeTimeS > nowTime.Unix() {
+			yun := Stock.Day * 0.5
+			message = fmt.Sprintf("未超出借阅时间，正常收费%f元",yun)
+		}else {
+			yun := Stock.Day * 0.75
+			message = fmt.Sprintf("超出借阅时间，收费%f元",yun)
+		}
+	}
+
+	if err := sysStockService.ChangeStatus(sysStockBorrowed.StockId, sysStockBorrowed.Status,Remark,Return_at,day);err != nil {
 			global.GVA_LOG.Error("更新失败!", zap.Error(err))
 			response.FailWithMessage("更新失败", c)
 
@@ -160,7 +217,7 @@ func (sysBooksApi *SysBooksApi) BorrowedSysBooks(c *gin.Context) {
 		SysUserID := int(utils.GetUserID(c))
 		log := autocode.SysBookRentLog{BookId: &sysStockBorrowed.BookId, StockId: &sysStockBorrowed.StockId,Type: &sysStockBorrowed.Type, Remark: sysStockBorrowed.Remark, UserId: &sysStockBorrowed.UserId, CreatorId: &SysUserID}
 		_ = sysBookRentLogService.CreateSysBookRentLog(log)
-		response.OkWithMessage("更新成功", c)
+		response.OkWithMessage(message, c)
 	}
 }
 

@@ -17,6 +17,16 @@
     <div class="gva-table-box">
       <div class="gva-btn-list">
         <el-button size="mini" type="primary" icon="plus" @click="openDialog">新增</el-button>
+        <el-upload
+            class="excel-btn"
+            :action="`/api/sysBooks/importExcel`"
+            :headers="{'x-token':token}"
+            :on-success="loadExcel"
+            :show-file-list="false"
+        >
+          <el-button size="mini" type="primary" icon="upload">导入</el-button>
+        </el-upload>
+        <el-button class="excel-btn" size="mini" type="success" icon="download" @click="downloadExcelTemplate()">下载模板</el-button>
         <el-popover v-model:visible="deleteVisible" placement="top" width="160">
           <p>确定要删除吗？</p>
           <div style="text-align: right; margin-top: 8px;">
@@ -40,14 +50,17 @@
         <el-table-column align="left" label="名称" prop="name" />
         <el-table-column align="left" label="作者" prop="author" />
         <el-table-column align="left" label="出版社" prop="press" />
-        <el-table-column align="left" label="出版时间" prop="pubDate" />
+        <el-table-column align="left" label="出版时间" prop="pubDate" ><template #default="scope">{{
+            formatDate(scope.row.pubDate, 'yyyy-MM-dd')
+          }}</template></el-table-column>
         <el-table-column align="left" label="图书编码" prop="upc" />
         <el-table-column align="left" label="书架编号" prop="bookcaseId" />
         <el-table-column align="left" label="价格" prop="price" />
         <el-table-column align="left" label="类型" prop="type.name" />
         <el-table-column align="left" label="封面" prop="photo" />
         <el-table-column align="left" label="状态" prop="status"><template #default="scope">{{ filterDict(scope.row.status,"status") }}</template></el-table-column>
-        <el-table-column align="left" label="可借/总数量" prop="amount"><template #default="scope">{{ filterNum (scope.row.amount, scope.row.stock) }}</template></el-table-column><el-table-column align="left" label="日期" width="180"><template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template></el-table-column>
+        <el-table-column align="left" label="可借/总数量" prop="amount"><template #default="scope">{{ filterNum (scope.row.amount, scope.row.stock) }}</template></el-table-column>
+        <el-table-column align="left" label="日期" width="180"><template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template></el-table-column>
         <el-table-column align="left" label="按钮组">
           <template #default="scope">
             <el-button type="text" icon="edit" size="small" class="table-button" @click="borrowSysBooks(scope.row)">借书</el-button>
@@ -151,7 +164,7 @@
             <el-option v-for="stock in stockList" :key="stock.ID" :label="stock.stockNo" :value="stock.ID" />
           </el-select>
         </el-form-item>
-        <el-form-item label="借书人:">
+        <el-form-item label="借书人:" v-if="type =='borrow'">
           <el-select
             v-model="borrowData.userId"
             :disabled="type!='borrow'"
@@ -162,6 +175,11 @@
             @clear="handleClear"
           >
             <el-option v-for="user in userList" :key="user.ID" :label="user.nickName" :value="user.ID" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="借阅时间:"  v-if="type =='borrow'">
+          <el-select v-model="borrowData.return_at" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in BorrowDateOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="备注:">
@@ -189,9 +207,11 @@ import {
   findSysBooks,
   getSysBooksList
 } from '@/api/sysBooks' //  此处请自行替换地址
+import { exportExcel, loadExcelData, downloadTemplate } from '@/api/excel'
 import { findUsers } from '../../api/user'
 import infoList from '@/mixins/infoList'
 import { getSysBookTypeList } from '../../api/sysBookType'
+import { mapGetters } from 'vuex'
 export default {
   name: 'SysBooks',
   mixins: [infoList],
@@ -208,6 +228,7 @@ export default {
       deleteVisible: false,
       multipleSelection: [],
       statusOptions: [],
+      BorrowDateOptions: [],
       typeOptions: [],
       stockList: [],
       copiedStockList: [],
@@ -240,17 +261,35 @@ export default {
         amount: 0,
         stockId: '',
         userId: '',
+        return_at: 0
       }
     }
+  },
+  computed: {
+    ...mapGetters('user', ['userInfo', 'token'])
   },
   async created() {
     await this.getTableData()
     await this.getDict('status')
+    await this.getDict('BorrowDate')
     const res = await getSysBookTypeList({ page: 1, pageSize: 999 })
     this.typeOptions = []
     this.setTypeOptions(res.data.list, this.typeOptions)
   },
   methods: {
+    handleExcelExport(fileName) {
+      if (!fileName || typeof fileName !== 'string') {
+        fileName = 'ExcelExport.xlsx'
+      }
+      exportExcel(this.tableData, fileName)
+    },
+    loadExcel() {
+      this.listApi = loadExcelData
+      this.getTableData()
+    },
+    downloadExcelTemplate() {
+      downloadTemplate('ExcelTemplate.xlsx')
+    },
     onReset() {
       this.searchInfo = {}
     },
@@ -480,6 +519,7 @@ export default {
             stockId: this.borrowData.stockId,
             userId: this.borrowData.userId,
             remark: this.borrowData.remark,
+            return_at: this.borrowData.return_at,
             type: 1,
             status: 2
           })
@@ -502,7 +542,7 @@ export default {
       if (res.code === 0) {
         this.$message({
           type: 'success',
-          message: '创建/更改成功'
+          message: res.msg
         })
         this.closeDialog()
         this.getTableData()

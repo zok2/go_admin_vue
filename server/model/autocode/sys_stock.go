@@ -20,6 +20,9 @@ type SysStock struct {
       CreatorId  *int `json:"creatorId" form:"creatorId" gorm:"column:creator_id;comment:创建人id;size:11;"`
       Creator  system.SysUser  `json:"creator" gorm:"foreignKey:CreatorId;"`
       Remark  string `json:"remark" form:"remark" gorm:"column:remark;comment:备注;size:200;"`
+      ReturnAt  string `json:"return_at" form:"return_at" gorm:"column:return_at;comment:借阅时间;size:20;"`
+      Day  float64 `json:"day" form:"day" gorm:"column:day;comment:借阅天;size:11;"`
+
 }
 
 

@@ -28,6 +28,7 @@ func (e *ExcelApi) ExportExcel(c *gin.Context) {
 	var excelInfo example.ExcelInfo
 	_ = c.ShouldBindJSON(&excelInfo)
 	filePath := global.GVA_CONFIG.Excel.Dir + excelInfo.FileName
+
 	err := excelService.ParseInfoList2Excel(excelInfo.InfoList, filePath)
 	if err != nil {
 		global.GVA_LOG.Error("转换Excel失败!", zap.Error(err))

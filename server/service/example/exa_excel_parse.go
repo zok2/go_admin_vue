@@ -3,11 +3,12 @@ package example
 import (
 	"errors"
 	"fmt"
-	"strconv"
-
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/autocode"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/system"
 	"github.com/xuri/excelize/v2"
+	"strconv"
+	"time"
 )
 
 type ExcelService struct{}
@@ -29,6 +30,60 @@ func (exa *ExcelService) ParseInfoList2Excel(infoList []system.SysBaseMenu, file
 	}
 	err := excel.SaveAs(filePath)
 	return err
+}
+
+func (exa *ExcelService) ParseBookList2Excel(filePath string) ([]autocode.SysBooks,error) {
+	skipHeader := true
+	fixedHeader := []string{"图书名","作者","出版社","图书编码","书架编号","出版时间","定价","类型id","封面","状态","数量"}
+	file, err := excelize.OpenFile(global.GVA_CONFIG.Excel.Dir +filePath)
+	if err != nil {
+		return nil, err
+	}
+	books := make([]autocode.SysBooks,0)
+	rows, err := file.Rows("Sheet1")
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		row, err := rows.Columns()
+		if err != nil {
+			return nil, err
+		}
+		if skipHeader {
+			if exa.compareStrSlice(row, fixedHeader) {
+				skipHeader = false
+				continue
+			} else {
+				return nil, errors.New("Excel格式错误")
+			}
+		}
+		if len(row) != len(fixedHeader) {
+			continue
+		}
+		PubDate,_ := time.Parse("2006/1/2",row[5])
+		Price,_ := strconv.ParseFloat(row[6],2)
+		TypeId,_ := strconv.Atoi(row[7])
+		Status,_ := strconv.Atoi(row[9])
+		Amount,_ := strconv.Atoi(row[10])
+		var (
+			book = autocode.SysBooks{
+				Name:       row[0],
+				Author:     row[1],
+				Press:      row[2],
+				Upc:        row[3],
+				BookcaseId: row[4],
+				PubDate:    &PubDate,
+				Price:      &Price,
+				TypeId:     &TypeId,
+				Photo:		"1",
+				Status:     &Status,
+				Amount:     &Amount,
+			}
+		)
+		books = append(books, book)
+	}
+	return books, nil
+
 }
 
 func (exa *ExcelService) ParseExcel2InfoList() ([]system.SysBaseMenu, error) {

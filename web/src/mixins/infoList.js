@@ -19,10 +19,10 @@ export default {
         return ''
       }
     },
-    formatDate: function(time) {
+    formatDate: function(time,t = 'yyyy-MM-dd hh:mm:ss') {
       if (time !== null && time !== '') {
         var date = new Date(time)
-        return formatTimeToStr(date, 'yyyy-MM-dd hh:mm:ss')
+        return formatTimeToStr(date, t)
       } else {
         return ''
       }

@@ -11,10 +11,12 @@ type SysStockSearch struct {
 }
 
 type SysStockBorrowedStruct struct {
-	StockId int   `json:"stockId"`
-	Status  int    `json:"status"`
-	BookId  int   `json:"bookId"`
-	UserId  int   `json:"userId"`
-	Type    int    `json:"type"`
-	Remark  string `json:"remark"`
+	StockId  int    `json:"stockId"`
+	Status   int    `json:"status"`
+	BookId   int    `json:"bookId"`
+	UserId   int    `json:"userId"`
+	Type     int    `json:"type"`
+	Remark   string `json:"remark"`
+	ReturnAt int `json:"return_at"`
+
 }

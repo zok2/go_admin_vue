@@ -9,7 +9,9 @@
           <el-input v-model="searchInfo.bookId" placeholder="搜索条件" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-input v-model="searchInfo.status" placeholder="搜索条件" />
+          <el-select v-model="searchInfo.status" placeholder="请选择" clearable>
+            <el-option v-for="(item,key) in StockStatusOptions" :key="key" :label="item.label" :value="item.value" />
+          </el-select>
         </el-form-item>
         <el-form-item label="借阅者">
           <el-input v-model="searchInfo.userId" placeholder="搜索条件" />
@@ -60,7 +62,10 @@
             <template #default="scope">{{ scope.row.creator.nickName }}</template>
           </el-table-column>
         <el-table-column align="left" label="备注" prop="remark" />
-          <el-table-column align="left" label="日期" width="180">
+          <el-table-column align="left" label="借阅日期" width="180">
+            <template #default="scope">{{ formatDate(scope.row.return_at) }}</template>
+          </el-table-column>
+          <el-table-column align="left" label="创建日期" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
           </el-table-column>
         <el-table-column align="left" label="按钮组">
@@ -127,7 +132,7 @@ import infoList from '@/mixins/infoList'
 export default {
   name: 'SysStock',
   mixins: [infoList],
-  data() {
+   data() {
     return {
       listApi: getSysStockList,
       dialogFormVisible: false,
@@ -146,13 +151,10 @@ export default {
     }
   },
   async created() {
-    await this.getTableData()
     await this.getDict('StockStatus')
+    await this.getTableData()
   },
   methods: {
-  onReset() {
-    this.searchInfo = {}
-  },
   // 条件搜索前端看此方法
     onSubmit() {
       this.page = 1
