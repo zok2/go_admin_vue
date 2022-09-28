@@ -284,7 +284,7 @@ export default {
       exportExcel(this.tableData, fileName)
     },
     loadExcel() {
-      this.listApi = loadExcelData
+      // this.listApi = loadExcelData
       this.getTableData()
     },
     downloadExcelTemplate() {

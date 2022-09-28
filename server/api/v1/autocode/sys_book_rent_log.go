@@ -120,7 +120,7 @@ func (sysBookRentLogApi *SysBookRentLogApi) UpdateSysBookRentLog(c *gin.Context)
 func (sysBookRentLogApi *SysBookRentLogApi) FindSysBookRentLog(c *gin.Context) {
 	var sysBookRentLog autocode.SysBookRentLog
 	_ = c.ShouldBindQuery(&sysBookRentLog)
-	if err, resysBookRentLog := sysBookRentLogService.GetSysBookRentLog(sysBookRentLog.ID); err != nil {
+	if err, resysBookRentLog := sysBookRentLogService.GetSysBookRentLog(*sysBookRentLog.StockId); err != nil {
         global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {

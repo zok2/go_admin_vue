@@ -1,11 +1,10 @@
-import axios from 'axios'
 
-const service = axios.create()
+import service from '@/utils/request'
 
 export function Commits(page) {
   return service({
-    url: 'https://api.github.com/repos/flipped-aurora/gin-vue-admin/commits?page=' + page,
-    method: 'get'
+    url: '/sysBookRentLog/getSysBookRentLogList?page=1&pageSize=10&type=1',
+    method: 'get',
   })
 }
 

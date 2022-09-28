@@ -50,9 +50,6 @@
           </div>
         </el-card>
         <el-card style="margin-top: 20px">
-          <template #header>
-            <div>flipped-aurora团队</div>
-          </template>
           <div>
             <el-row>
               <el-col :span="8" :offset="8">

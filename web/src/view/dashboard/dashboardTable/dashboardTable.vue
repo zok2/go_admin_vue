@@ -30,15 +30,13 @@ export default {
     loadCommits() {
       Commits(0).then(({ data }) => {
         this.loading = false
-        data.forEach((element, index) => {
-          if (element.commit.message && index < 10) {
-            this.dataTimeline.push({
-              from: formatTimeToStr(element.commit.author.date, 'yyyy-MM-dd'),
-              title: element.commit.author.name,
-              showDayAndMonth: true,
-              message: element.commit.message,
-            })
-          }
+        data.list.forEach((element) => {
+          this.dataTimeline.push({
+            from: formatTimeToStr(element.CreatedAt, 'yyyy-MM-dd'),
+            title: element.book.name,
+            showDayAndMonth: true,
+            message: element.book.name + ',' + element.book.author,
+          })
         })
       })
     },

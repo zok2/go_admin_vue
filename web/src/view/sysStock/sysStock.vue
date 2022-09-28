@@ -70,7 +70,8 @@
           </el-table-column>
         <el-table-column align="left" label="按钮组">
             <template #default="scope">
-              <el-button type="text" icon="edit" size="small" class="table-button" @click="updateSysStock(scope.row)">借书记录</el-button>
+              <el-button type="text" icon="edit" size="small" class="table-button" @click="updateSysStock(scope.row)">修改图书状态</el-button>
+              <el-button type="text" icon="edit" size="small" class="table-button" @click="getBookLog(scope.row)">借书记录</el-button>
             </template>
         </el-table-column>
         </el-table>
@@ -89,9 +90,9 @@
     <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" title="弹窗操作">
       <el-form :model="formData" label-position="right" label-width="80px">
         <el-form-item label="编号:">
-          <el-input v-model="formData.stockNo" clearable placeholder="请输入" />
+          <el-input    :disabled="type!='create'" v-model="formData.stockNo" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="图书:">
+        <el-form-item label="图书:" v-if="type =='create'" >
           <el-input v-model.number="formData.bookId" clearable placeholder="请输入" />
         </el-form-item>
         <el-form-item label="状态:">
@@ -99,13 +100,13 @@
             <el-option v-for="(item,key) in StockStatusOptions" :key="key" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="借阅者:">
+        <el-form-item label="借阅者:"  v-if="type =='create'" >
           <el-input v-model.number="formData.userId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="创建人:">
+        <el-form-item label="创建人:"  v-if="type =='create'" >
           <el-input v-model.number="formData.creatorId" clearable placeholder="请输入" />
         </el-form-item>
-        <el-form-item label="备注:">
+        <el-form-item label="备注:" >
           <el-input v-model="formData.remark" clearable placeholder="请输入" />
         </el-form-item>
       </el-form>
@@ -116,6 +117,43 @@
         </div>
       </template>
     </el-dialog>
+
+
+    <el-dialog v-model="dialogList" :before-close="closeDialogList" title="借书记录">
+      <el-table
+          ref="multipleTable"
+          style="width: 100%"
+          tooltip-effect="dark"
+          :data="bookLog"
+          row-key="ID"
+      >
+        <el-table-column align="left" label="图书" prop=""  width="200" >
+          <template #default="scope">{{ scope.row.book.name }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="状态" prop="status" width="80">
+          <template #default="scope">
+            {{ filterDict(scope.row.type,"type") }}
+          </template>
+        </el-table-column>
+        <el-table-column align="left" label="借阅者" prop="userId" width="120">
+          <template #default="scope">{{ scope.row.borrower.nickName }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="创建人" prop="creatorId" width="120">
+          <template #default="scope">{{ scope.row.creator.nickName }}</template>
+        </el-table-column>
+        <el-table-column align="left" label="备注" prop="remark" />
+        <el-table-column align="left" label="借阅日期" width="180">
+          <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button size="small" type="primary" @click="closeDialogList">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+
   </div>
 </template>
 
@@ -129,6 +167,7 @@ import {
   getSysStockList
 } from '@/api/sysStock' //  此处请自行替换地址
 import infoList from '@/mixins/infoList'
+import { findSysBookRentLog } from '../../api/sysBookRentLog'
 export default {
   name: 'SysStock',
   mixins: [infoList],
@@ -136,6 +175,8 @@ export default {
     return {
       listApi: getSysStockList,
       dialogFormVisible: false,
+      bookLog:[],
+      dialogList :false,
       type: '',
       deleteVisible: false,
       multipleSelection: [],
@@ -152,6 +193,7 @@ export default {
   },
   async created() {
     await this.getDict('StockStatus')
+    await this.getDict('type')
     await this.getTableData()
   },
   methods: {
@@ -206,6 +248,16 @@ export default {
         this.formData = res.data.resysStock
         this.dialogFormVisible = true
       }
+    },
+    async getBookLog(row) {
+      const res = await findSysBookRentLog({ stockId: row.ID })
+      if (res.code === 0) {
+        this.bookLog = res.data.resysBookRentLog
+        this.dialogList = true
+      }
+    },
+    closeDialogList() {
+      this.dialogList = false
     },
     closeDialog() {
       this.dialogFormVisible = false

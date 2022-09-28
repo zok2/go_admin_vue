@@ -45,12 +45,13 @@ func (sysStockService *SysStockService)UpdateSysStock(sysStock autocode.SysStock
 	return err
 }
 
-func (sysStockService *SysStockService)ChangeStatus(Id int, status int,remark string, returnAt string,day int) (err error)  {
+func (sysStockService *SysStockService)ChangeStatus(Id int, UserId int,status int,remark string, returnAt string,day int) (err error)  {
 	var stock autocode.SysStock
 
 	err = global.GVA_DB.Where("id = ? ", Id ).First(&stock).Update("status",status).
 		Update("remark",remark).
 		Update("day",day).
+		Update("user_id",UserId).
 		Update("return_at", returnAt).Error
 	return err
 }

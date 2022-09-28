@@ -28,7 +28,9 @@ export default {
       }
     },
     filterDict(value, type) {
+
       const rowLabel = this[type + 'Options'] && this[type + 'Options'].filter(item => item.value === value)
+      console.log(this)
       return rowLabel && rowLabel[0] && rowLabel[0].label
     },
     filterNum(amount, stock) {

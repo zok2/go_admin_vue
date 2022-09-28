@@ -192,12 +192,17 @@ func (sysBooksApi *SysBooksApi) BorrowedSysBooks(c *gin.Context) {
 	message := "更新成功"
 	nowTime := time.Now()
 	day := sysStockBorrowed.ReturnAt
+	_,Stock := sysStockService.GetSysStock(uint(sysStockBorrowed.StockId))
+	UserId :=  &sysStockBorrowed.UserId
+	if  *UserId == 0 {
+		UserId = Stock.UserId
+	}
 	if sysStockBorrowed.Type == 1 {
 		beforeTime := nowTime.AddDate(0, 0, day)
 		beforeTimeS := beforeTime.Unix() // 秒时间戳
 		Return_at = time.Unix(beforeTimeS, 0).Format("2006-01-02") // 固定格式的日期时间戳
 	}else {
-		_,Stock := sysStockService.GetSysStock(uint(sysStockBorrowed.StockId))
+
 		beforeTime, _ := time.Parse("2006-01-02",Stock.ReturnAt)
 		beforeTimeS := beforeTime.Unix() // 秒时间戳
 		if beforeTimeS > nowTime.Unix() {
@@ -209,13 +214,14 @@ func (sysBooksApi *SysBooksApi) BorrowedSysBooks(c *gin.Context) {
 		}
 	}
 
-	if err := sysStockService.ChangeStatus(sysStockBorrowed.StockId, sysStockBorrowed.Status,Remark,Return_at,day);err != nil {
+	if err := sysStockService.ChangeStatus(sysStockBorrowed.StockId, sysStockBorrowed.UserId,sysStockBorrowed.Status,Remark,Return_at,day);err != nil {
 			global.GVA_LOG.Error("更新失败!", zap.Error(err))
 			response.FailWithMessage("更新失败", c)
 
 	} else {
 		SysUserID := int(utils.GetUserID(c))
-		log := autocode.SysBookRentLog{BookId: &sysStockBorrowed.BookId, StockId: &sysStockBorrowed.StockId,Type: &sysStockBorrowed.Type, Remark: sysStockBorrowed.Remark, UserId: &sysStockBorrowed.UserId, CreatorId: &SysUserID}
+
+		log := autocode.SysBookRentLog{BookId: &sysStockBorrowed.BookId, StockId: &sysStockBorrowed.StockId,Type: &sysStockBorrowed.Type, Remark: sysStockBorrowed.Remark, UserId: UserId, CreatorId: &SysUserID}
 		_ = sysBookRentLogService.CreateSysBookRentLog(log)
 		response.OkWithMessage(message, c)
 	}
